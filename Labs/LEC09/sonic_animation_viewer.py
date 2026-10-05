@@ -46,6 +46,8 @@ class Frame(NamedTuple):
 class Animation(NamedTuple):
     name: str
     frames: tuple[Frame, ...]
+    speed: float = 0.0
+    jump_height: float = 0.0
 
 
 ANIMATIONS = (
@@ -61,7 +63,7 @@ ANIMATIONS = (
         Frame(241, 39, 28, 38),
         Frame(270, 45, 24, 32),
         Frame(302, 51, 29, 26),
-    )),
+    ), 90),
     Animation("2행 동작", (
         Frame(8, 80, 26, 37),
         Frame(37, 80, 27, 37),
@@ -75,7 +77,7 @@ ANIMATIONS = (
         Frame(295, 80, 36, 37),
         Frame(334, 80, 32, 36),
         Frame(370, 79, 29, 38),
-    )),
+    ), 180),
     Animation("3행 동작", (
         Frame(1, 124, 33, 40),
         Frame(39, 124, 35, 39),
@@ -83,7 +85,7 @@ ANIMATIONS = (
         Frame(130, 121, 34, 42),
         Frame(181, 122, 34, 41),
         Frame(228, 122, 33, 40),
-    )),
+    ), 260),
     Animation("4행 동작", (
         Frame(1, 169, 29, 30),
         Frame(35, 167, 29, 31),
@@ -102,7 +104,7 @@ ANIMATIONS = (
         Frame(105, 206, 29, 27),
         Frame(139, 206, 29, 27),
         Frame(174, 206, 29, 27),
-    )),
+    ), 160),
     Animation("6행 동작", (
         Frame(1, 239, 29, 35),
         Frame(36, 239, 30, 35),
@@ -110,7 +112,7 @@ ANIMATIONS = (
         Frame(111, 238, 31, 36),
         Frame(149, 239, 30, 35),
         Frame(186, 238, 31, 36),
-    )),
+    ), 200),
     Animation("7행 동작", (
         Frame(1, 283, 29, 35),
         Frame(36, 283, 30, 35),
@@ -118,7 +120,7 @@ ANIMATIONS = (
         Frame(123, 285, 39, 32),
         Frame(172, 286, 39, 31),
         Frame(218, 285, 38, 32),
-    )),
+    ), 240),
     Animation("8행 동작", (
         Frame(1, 326, 24, 45),
         Frame(31, 327, 29, 44),
@@ -128,7 +130,7 @@ ANIMATIONS = (
         Frame(149, 327, 20, 44),
         Frame(184, 341, 40, 28),
         Frame(232, 341, 39, 27),
-    )),
+    ), 140, 120),
     Animation("9행 동작", (
         Frame(1, 379, 27, 38),
         Frame(31, 379, 31, 36),
@@ -138,7 +140,7 @@ ANIMATIONS = (
         Frame(176, 379, 33, 36),
         Frame(217, 379, 33, 36),
         Frame(254, 378, 33, 36),
-    )),
+    ), 180),
     Animation("10행 동작", (
         Frame(6, 429, 34, 40),
         Frame(49, 426, 34, 43),
