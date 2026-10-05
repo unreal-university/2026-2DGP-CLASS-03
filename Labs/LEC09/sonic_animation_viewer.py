@@ -1,6 +1,7 @@
 """LEC09: play every Sonic animation from the sprite sheet."""
 
 from pathlib import Path
+from typing import NamedTuple
 
 from pico2d import (
     SDL_KEYDOWN,
@@ -16,6 +17,21 @@ from pico2d import (
 CANVAS_WIDTH = 1200
 CANVAS_HEIGHT = 800
 SPRITE_PATH = Path(__file__).with_name("sonic-sprite.png")
+
+
+class Frame(NamedTuple):
+    """A crop rectangle measured from the sheet's top-left corner."""
+
+    x: int
+    y: int
+    width: int
+    height: int
+
+    def bottom(self, image_height: int) -> int:
+        return image_height - self.y - self.height
+
+
+FIRST_FRAME = Frame(1, 39, 29, 39)
 
 
 def main():
