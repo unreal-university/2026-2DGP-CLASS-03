@@ -37,6 +37,29 @@ class Frame(NamedTuple):
 FIRST_FRAME = Frame(1, 39, 29, 39)
 
 
+class Animation(NamedTuple):
+    name: str
+    frames: tuple[Frame, ...]
+
+
+ANIMATIONS = (
+    Animation("1행 동작", (
+        Frame(1, 39, 29, 39),
+        Frame(31, 40, 26, 38),
+        Frame(58, 39, 29, 39),
+        Frame(87, 40, 29, 38),
+        Frame(118, 40, 30, 38),
+        Frame(150, 40, 30, 38),
+        Frame(182, 40, 30, 38),
+        Frame(212, 39, 29, 38),
+        Frame(241, 39, 28, 38),
+        Frame(270, 45, 24, 32),
+        Frame(302, 51, 29, 26),
+    )),
+    # 다음 동작
+)
+
+
 def draw_frame(sprite, frame: Frame) -> None:
     scale = 4
     sprite.clip_draw(
