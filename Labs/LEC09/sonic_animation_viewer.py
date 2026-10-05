@@ -12,6 +12,7 @@ from pico2d import (
     close_canvas,
     delay,
     get_events,
+    hide_lattice,
     load_image,
     open_canvas,
     update_canvas,
@@ -220,6 +221,7 @@ def main():
 
     open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
+        hide_lattice()
         sprite = load_image(str(SPRITE_PATH))
         validate_animations(sprite)
         playback = Playback(monotonic())
