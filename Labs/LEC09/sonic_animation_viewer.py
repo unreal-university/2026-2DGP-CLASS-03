@@ -1,6 +1,7 @@
 """LEC09: play every Sonic animation from the sprite sheet."""
 
 from pathlib import Path
+from time import monotonic
 from typing import NamedTuple
 
 from pico2d import (
@@ -20,6 +21,7 @@ from pico2d import (
 CANVAS_WIDTH = 1200
 CANVAS_HEIGHT = 800
 SPRITE_PATH = Path(__file__).with_name("sonic-sprite.png")
+FRAME_SECONDS = 0.1
 
 
 class Frame(NamedTuple):
@@ -157,6 +159,23 @@ def validate_animations(sprite) -> None:
                 raise ValueError(f"이미지 밖 프레임: {animation.name} {frame}")
 
 
+class Playback:
+    def __init__(self, started_at: float):
+        self.animation_index = 0
+        self.frame_index = 0
+        self.deadline = started_at + FRAME_SECONDS
+
+    @property
+    def frame(self) -> Frame:
+        return ANIMATIONS[self.animation_index].frames[self.frame_index]
+
+    def advance(self, now: float) -> None:
+        frames = ANIMATIONS[self.animation_index].frames
+        while now >= self.deadline:
+            self.frame_index = (self.frame_index + 1) % len(frames)
+            self.deadline += FRAME_SECONDS
+
+
 def draw_frame(sprite, frame: Frame) -> None:
     scale = 4
     sprite.clip_draw(
@@ -179,10 +198,12 @@ def main():
     try:
         sprite = load_image(str(SPRITE_PATH))
         validate_animations(sprite)
+        playback = Playback(monotonic())
         running = True
         while running:
+            playback.advance(monotonic())
             clear_canvas()
-            draw_frame(sprite, ANIMATIONS[0].frames[0])
+            draw_frame(sprite, playback.frame)
             update_canvas()
             for event in get_events():
                 if event.type == SDL_QUIT or (
