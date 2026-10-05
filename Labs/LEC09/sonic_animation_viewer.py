@@ -20,6 +20,8 @@ from pico2d import (
 
 CANVAS_WIDTH = 1200
 CANVAS_HEIGHT = 800
+SCALE = 4
+GROUND_Y = CANVAS_HEIGHT // 2 - 80
 SPRITE_PATH = Path(__file__).with_name("sonic-sprite.png")
 FRAME_SECONDS = 0.1
 REPEAT_COUNT = 5
@@ -33,6 +35,8 @@ class Frame(NamedTuple):
     y: int
     width: int
     height: int
+    offset_x: int = 0
+    offset_y: int = 0
 
     def bottom(self, image_height: int) -> int:
         return image_height - self.y - self.height
@@ -198,16 +202,15 @@ class Playback:
 
 
 def draw_frame(sprite, frame: Frame) -> None:
-    scale = 4
     sprite.clip_draw(
         frame.x,
         frame.bottom(sprite.h),
         frame.width,
         frame.height,
-        CANVAS_WIDTH // 2,
-        CANVAS_HEIGHT // 2,
-        frame.width * scale,
-        frame.height * scale,
+        CANVAS_WIDTH // 2 + frame.offset_x * SCALE,
+        GROUND_Y + (frame.height * SCALE) // 2 + frame.offset_y * SCALE,
+        frame.width * SCALE,
+        frame.height * SCALE,
     )
 
 
