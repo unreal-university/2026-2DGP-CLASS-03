@@ -174,14 +174,15 @@ class Playback:
         return ANIMATIONS[self.animation_index].frames[self.frame_index]
 
     def advance(self, now: float) -> None:
-        frames = ANIMATIONS[self.animation_index].frames
         while now >= self.deadline:
             if self.paused:
+                self.animation_index = (self.animation_index + 1) % len(ANIMATIONS)
                 self.frame_index = 0
                 self.completed_loops = 0
                 self.paused = False
                 self.deadline += FRAME_SECONDS
                 continue
+            frames = ANIMATIONS[self.animation_index].frames
             if self.frame_index < len(frames) - 1:
                 self.frame_index += 1
             else:
