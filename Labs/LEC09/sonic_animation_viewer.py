@@ -174,19 +174,41 @@ class Playback:
         self.frame_index = 0
         self.completed_loops = 0
         self.paused = False
+        self.x = CANVAS_WIDTH / 2
+        self.direction = 1
+        self.last_update = started_at
         self.deadline = started_at + FRAME_SECONDS
 
     @property
     def frame(self) -> Frame:
         return ANIMATIONS[self.animation_index].frames[self.frame_index]
 
+    def _move_for(self, seconds: float) -> None:
+        animation = ANIMATIONS[self.animation_index]
+        if self.paused or animation.speed == 0:
+            return
+        margin = max(frame.width for frame in animation.frames) * SCALE / 2
+        left, right = margin, CANVAS_WIDTH - margin
+        self.x += animation.speed * self.direction * seconds
+        while self.x < left or self.x > right:
+            if self.x > right:
+                self.x = 2 * right - self.x
+                self.direction = -1
+            else:
+                self.x = 2 * left - self.x
+                self.direction = 1
+
     def advance(self, now: float) -> None:
         while now >= self.deadline:
+            self._move_for(self.deadline - self.last_update)
+            self.last_update = self.deadline
             if self.paused:
                 self.animation_index = (self.animation_index + 1) % len(ANIMATIONS)
                 self.frame_index = 0
                 self.completed_loops = 0
                 self.paused = False
+                self.x = CANVAS_WIDTH / 2
+                self.direction = 1
                 self.deadline += FRAME_SECONDS
                 continue
             frames = ANIMATIONS[self.animation_index].frames
@@ -202,15 +224,19 @@ class Playback:
                     self.deadline += FRAME_SECONDS
                 continue
             self.deadline += FRAME_SECONDS
+        self._move_for(now - self.last_update)
+        self.last_update = now
 
 
-def draw_frame(sprite, frame: Frame) -> None:
-    sprite.clip_draw(
+def draw_frame(sprite, frame: Frame, x: float, direction: int) -> None:
+    sprite.clip_composite_draw(
         frame.x,
         frame.bottom(sprite.h),
         frame.width,
         frame.height,
-        CANVAS_WIDTH // 2 + frame.offset_x * SCALE,
+        0,
+        "h" if direction < 0 else "",
+        x + frame.offset_x * SCALE,
         GROUND_Y + (frame.height * SCALE) // 2 + frame.offset_y * SCALE,
         frame.width * SCALE,
         frame.height * SCALE,
@@ -231,7 +257,7 @@ def main():
         while running:
             playback.advance(monotonic())
             clear_canvas()
-            draw_frame(sprite, playback.frame)
+            draw_frame(sprite, playback.frame, playback.x, playback.direction)
             update_canvas()
             for event in get_events():
                 if event.type == SDL_QUIT or (
