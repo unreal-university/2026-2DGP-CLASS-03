@@ -7,10 +7,13 @@ from pico2d import (
     SDL_KEYDOWN,
     SDL_QUIT,
     SDLK_ESCAPE,
+    clear_canvas,
     close_canvas,
+    delay,
     get_events,
     load_image,
     open_canvas,
+    update_canvas,
 )
 
 
@@ -34,6 +37,20 @@ class Frame(NamedTuple):
 FIRST_FRAME = Frame(1, 39, 29, 39)
 
 
+def draw_frame(sprite, frame: Frame) -> None:
+    scale = 4
+    sprite.clip_draw(
+        frame.x,
+        frame.bottom(sprite.h),
+        frame.width,
+        frame.height,
+        CANVAS_WIDTH // 2,
+        CANVAS_HEIGHT // 2,
+        frame.width * scale,
+        frame.height * scale,
+    )
+
+
 def main():
     if not SPRITE_PATH.is_file():
         raise FileNotFoundError(f"스프라이트 시트를 찾을 수 없습니다: {SPRITE_PATH}")
@@ -43,11 +60,15 @@ def main():
         sprite = load_image(str(SPRITE_PATH))
         running = True
         while running:
+            clear_canvas()
+            draw_frame(sprite, FIRST_FRAME)
+            update_canvas()
             for event in get_events():
                 if event.type == SDL_QUIT or (
                     event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE
                 ):
                     running = False
+            delay(1 / 60)
     finally:
         close_canvas()
 
