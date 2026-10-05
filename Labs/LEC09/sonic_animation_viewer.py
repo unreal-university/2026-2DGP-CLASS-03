@@ -34,9 +34,6 @@ class Frame(NamedTuple):
         return image_height - self.y - self.height
 
 
-FIRST_FRAME = Frame(1, 39, 29, 39)
-
-
 class Animation(NamedTuple):
     name: str
     frames: tuple[Frame, ...]
@@ -139,8 +136,25 @@ ANIMATIONS = (
         Frame(96, 427, 23, 39),
         Frame(125, 427, 23, 39),
     )),
-    # 다음 동작
 )
+
+
+def validate_animations(sprite) -> None:
+    if len(ANIMATIONS) != 10 or sum(len(item.frames) for item in ANIMATIONS) != 76:
+        raise ValueError("동작 10개와 프레임 76개가 필요합니다")
+    for animation in ANIMATIONS:
+        if not animation.frames:
+            raise ValueError(f"프레임이 없는 동작: {animation.name}")
+        for frame in animation.frames:
+            if not (
+                0 <= frame.x < sprite.w
+                and 0 <= frame.y < sprite.h
+                and frame.width > 0
+                and frame.height > 0
+                and frame.x + frame.width <= sprite.w
+                and frame.y + frame.height <= sprite.h
+            ):
+                raise ValueError(f"이미지 밖 프레임: {animation.name} {frame}")
 
 
 def draw_frame(sprite, frame: Frame) -> None:
@@ -164,10 +178,11 @@ def main():
     open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
         sprite = load_image(str(SPRITE_PATH))
+        validate_animations(sprite)
         running = True
         while running:
             clear_canvas()
-            draw_frame(sprite, FIRST_FRAME)
+            draw_frame(sprite, ANIMATIONS[0].frames[0])
             update_canvas()
             for event in get_events():
                 if event.type == SDL_QUIT or (
