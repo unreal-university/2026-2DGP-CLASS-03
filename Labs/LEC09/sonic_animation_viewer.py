@@ -2,7 +2,15 @@
 
 from pathlib import Path
 
-from pico2d import close_canvas, load_image, open_canvas
+from pico2d import (
+    SDL_KEYDOWN,
+    SDL_QUIT,
+    SDLK_ESCAPE,
+    close_canvas,
+    get_events,
+    load_image,
+    open_canvas,
+)
 
 
 CANVAS_WIDTH = 1200
@@ -17,6 +25,13 @@ def main():
     open_canvas(CANVAS_WIDTH, CANVAS_HEIGHT)
     try:
         sprite = load_image(str(SPRITE_PATH))
+        running = True
+        while running:
+            for event in get_events():
+                if event.type == SDL_QUIT or (
+                    event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE
+                ):
+                    running = False
     finally:
         close_canvas()
 
