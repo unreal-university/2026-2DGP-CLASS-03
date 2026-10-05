@@ -176,6 +176,7 @@ class Playback:
         self.paused = False
         self.x = CANVAS_WIDTH / 2
         self.direction = 1
+        self.motion_elapsed = 0.0
         self.last_update = started_at
         self.deadline = started_at + FRAME_SECONDS
 
@@ -183,10 +184,20 @@ class Playback:
     def frame(self) -> Frame:
         return ANIMATIONS[self.animation_index].frames[self.frame_index]
 
+    @property
+    def jump_y(self) -> float:
+        animation = ANIMATIONS[self.animation_index]
+        if animation.jump_height == 0:
+            return 0.0
+        cycle_seconds = len(animation.frames) * FRAME_SECONDS
+        phase = (self.motion_elapsed % cycle_seconds) / cycle_seconds
+        return 4 * animation.jump_height * phase * (1 - phase)
+
     def _move_for(self, seconds: float) -> None:
         animation = ANIMATIONS[self.animation_index]
         if self.paused or animation.speed == 0:
             return
+        self.motion_elapsed += seconds
         margin = max(frame.width for frame in animation.frames) * SCALE / 2
         left, right = margin, CANVAS_WIDTH - margin
         self.x += animation.speed * self.direction * seconds
@@ -209,6 +220,7 @@ class Playback:
                 self.paused = False
                 self.x = CANVAS_WIDTH / 2
                 self.direction = 1
+                self.motion_elapsed = 0.0
                 self.deadline += FRAME_SECONDS
                 continue
             frames = ANIMATIONS[self.animation_index].frames
@@ -228,7 +240,7 @@ class Playback:
         self.last_update = now
 
 
-def draw_frame(sprite, frame: Frame, x: float, direction: int) -> None:
+def draw_frame(sprite, frame: Frame, x: float, y_offset: float, direction: int) -> None:
     sprite.clip_composite_draw(
         frame.x,
         frame.bottom(sprite.h),
@@ -237,7 +249,7 @@ def draw_frame(sprite, frame: Frame, x: float, direction: int) -> None:
         0,
         "h" if direction < 0 else "",
         x + frame.offset_x * SCALE,
-        GROUND_Y + (frame.height * SCALE) // 2 + frame.offset_y * SCALE,
+        GROUND_Y + (frame.height * SCALE) // 2 + frame.offset_y * SCALE + y_offset,
         frame.width * SCALE,
         frame.height * SCALE,
     )
@@ -257,7 +269,7 @@ def main():
         while running:
             playback.advance(monotonic())
             clear_canvas()
-            draw_frame(sprite, playback.frame, playback.x, playback.direction)
+            draw_frame(sprite, playback.frame, playback.x, playback.jump_y, playback.direction)
             update_canvas()
             for event in get_events():
                 if event.type == SDL_QUIT or (
