@@ -22,6 +22,7 @@ CANVAS_WIDTH = 1200
 CANVAS_HEIGHT = 800
 SPRITE_PATH = Path(__file__).with_name("sonic-sprite.png")
 FRAME_SECONDS = 0.1
+REPEAT_COUNT = 5
 
 
 class Frame(NamedTuple):
@@ -163,6 +164,8 @@ class Playback:
     def __init__(self, started_at: float):
         self.animation_index = 0
         self.frame_index = 0
+        self.completed_loops = 0
+        self.paused = False
         self.deadline = started_at + FRAME_SECONDS
 
     @property
@@ -171,8 +174,15 @@ class Playback:
 
     def advance(self, now: float) -> None:
         frames = ANIMATIONS[self.animation_index].frames
-        while now >= self.deadline:
-            self.frame_index = (self.frame_index + 1) % len(frames)
+        while not self.paused and now >= self.deadline:
+            if self.frame_index < len(frames) - 1:
+                self.frame_index += 1
+            else:
+                self.completed_loops += 1
+                if self.completed_loops == REPEAT_COUNT:
+                    self.paused = True
+                else:
+                    self.frame_index = 0
             self.deadline += FRAME_SECONDS
 
 
